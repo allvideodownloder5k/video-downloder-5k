@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Text Tools — Case Converter</title>
+  <!-- Tailwind CDN (optional) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6">
+    <header class="mb-4">
+      <h1 class="text-2xl font-semibold">Text Tools — Case Converter</h1>
+      <p class="text-sm text-slate-500 mt-1">রিয়েল-টাইমে টেক্সট কনভার্ট করুন — lowercase, UPPERCASE, Title Case, sentence case ইত্যাদি।</p>
+    </header>
+
+    <main>
+      <label class="block text-sm font-medium mb-2">আপনার টেক্সট</label>
+      <textarea id="input" rows="8" class="w-full p-3 border rounded-md resize-y" placeholder="এখানে টেক্সট পেস্ট করুন..."></textarea>
+
+      <div class="flex gap-2 mt-3 flex-wrap">
+        <button class="btn" data-action="lower">lowercase</button>
+        <button class="btn" data-action="upper">UPPERCASE</button>
+        <button class="btn" data-action="title">Title Case</button>
+        <button class="btn" data-action="sentence">Sentence case</button>
+        <button class="btn" data-action="trim">Trim spaces</button>
+        <button class="btn" data-action="copy">Copy result</button>
+        <button class="btn" data-action="clear">Clear</button>
+      </div>
+
+      <label class="block text-sm font-medium mb-2 mt-4">রেজাল্ট</label>
+      <textarea id="output" rows="8" class="w-full p-3 border rounded-md bg-slate-50" readonly placeholder="Result will appear here..."></textarea>
+    </main>
+
+    <footer class="mt-4 text-xs text-slate-500">
+      <div>Made with ❤ — No backend, works entirely in your browser.</div>
+    </footer>
+  </div>
+
+  <script>
+    // small helper functions
+    const el = (id) => document.getElementById(id);
+    const input = el('input'), output = el('output');
+
+    function toTitleCase(str){
+      return str.toLowerCase().split(' ').map(w=>{
+        return w.charAt(0).toUpperCase() + w.slice(1);
+      }).join(' ');
+    }
+
+    function toSentenceCase(str){
+      // Split into sentences by .!? and convert each sentence start to uppercase
+      return str.toLowerCase().replace(/(^\s*\w|[\.!\?]\s*\w)/g, c => c.toUpperCase());
+    }
+
+    function trimSpaces(str){
+      // collapse multiple spaces and trim each line
+      return str.split('\n').map(l => l.replace(/\s+/g,' ').trim()).join('\n').trim();
+    }
+
+    document.querySelectorAll('.btn').forEach(b=>{
+      b.addEventListener('click', (ev)=>{
+        const action = b.getAttribute('data-action');
+        const val = input.value || '';
+        let res = '';
+        if(action === 'lower') res = val.toLowerCase();
+        else if(action === 'upper') res = val.toUpperCase();
+        else if(action === 'title') res = toTitleCase(val);
+        else if(action === 'sentence') res = toSentenceCase(val);
+        else if(action === 'trim') res = trimSpaces(val);
+        else if(action === 'copy') {
+          navigator.clipboard.writeText(output.value).then(()=> {
+            b.textContent = 'Copied ✓';
+            setTimeout(()=> b.textContent = 'Copy result', 1200);
+          }).catch(()=> {
+            alert('Copy failed — try manually selecting and copying.');
+          });
+          return;
+        } else if(action === 'clear'){
+          input.value = '';
+          output.value = '';
+          return;
+        }
+        output.value = res;
+      });
+    });
+
+    // live preview (optional)
+    input.addEventListener('input', ()=> {
+      // show simple echo by default
+      output.value = input.value;
+    });
+  </script>
+
+  <style>
+    .btn{
+      padding: .45rem .7rem;
+      border-radius: .5rem;
+      border: 1px solid #e6e6e6;
+      background: white;
+      cursor: pointer;
+      font-size: .9rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .btn:hover{ transform: translateY(-1px); }
+  </style>
+</body>
+</html>
+
